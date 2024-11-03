@@ -1,57 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Us - WeatherWise</title>
-  <link rel="stylesheet" href="contact.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyStream - Weather App</title>
+     
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+    <script src="https://kit.fontawesome.com/a6b0b5c0e4.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Universal reset for margins and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Body background and general styling */
+        body {
+            background: linear-gradient(to bottom, #c0e0f7, #87ceeb);
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Header styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 10%;
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #ffdd57;
+        }
+
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Container styling */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Weather input section styling */
+        .weather-input {
+            flex: 1;
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .weather-input h3 {
+            font-size: 20px;
+            color: #0073e6;
+        }
+
+        .weather-input input, .weather-input button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .weather-input .separator {
+            height: 1px;
+            background: #ddd;
+            margin: 10px 0;
+        }
+
+        #windy {
+            height: 350px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        /* Weather data section styling */
+        .weather-data {
+            flex: 2;
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .weather-data h2, .weather-data h4 {
+            color: #333;
+        }
+
+        /* Cards for days forecast */
+        .days-forecast ul {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 0;
+        }
+
+        .days-forecast .card {
+            background-color: #e1f5fe;
+            border: 1px solid #0073e6;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            text-align: center;
+        }
+
+        .days-forecast .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .days-forecast .card h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #0073e6;
+        }
+
+        .days-forecast .card img {
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Chatbot button styling */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chatbot-button {
+            background-color: #0073e6;
+            border: none;
+            border-radius: 50%;
+            padding: 10px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .chatbot-button img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tooltip-text {
+            display: none;
+            position: absolute;
+            bottom: 120%;
+            right: 50%;
+            transform: translateX(50%);
+            background-color: #333;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .chatbot-button:hover .tooltip-text {
+            display: block;
+        }
+
+        /* Footer styling */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 5%;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #ffdd57;
+            text-decoration: none;
+        }
+
+        .footer ul {
+            list-style: none;
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer ul li {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer ul li i {
+            margin-right: 5px;
+        }
+    </style>
 </head>
+
 <body>
-  <header>
-    <nav>
-        <ul>
-          <li><a href="index.html">Home<span></span></a></li>
-        </ul>
-      </nav>
-    <div class="container">
+    <header>
+        <h1>SkyStream</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+        </nav>
+        <button class="dark-mode-toggle"><i class="fas fa-sun"></i></button>
+    </header>
     
-      <h1>Contact Us</h1>
-      <p>We'd love to hear from you!</p>
-    </div>
-  </header>
-
-  <section class="contact-section">
     <div class="container">
-      <h2>Get in Touch</h2>
-      <p>If you have any questions, feedback, or suggestions, feel free to reach out to us using the form below:</p>
+        <div class="weather-input">
+            <h3>Enter Location</h3>
+            <input type="text" class="city-input" placeholder="E.g., Agra, Firozabad, Tundla">
+            <button class="search-btn">Search</button>
+            <div class="separator"></div>
+            <button class="location-btn">Use Current Location</button>
 
-      <form action="#" method="POST" class="contact-form">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
+            <div id="windy"></div>
+        </div>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" rows="5" required></textarea>
-
-        <button type="submit">Send Message</button>
-      </form>
-
-      <div class="contact-info">
-        <h3>Contact Information</h3>
-        <p><strong>Email:</strong> support@SkyStream.com</p>
-        <p><strong>Phone:</strong> **************</p>
-        <p><strong>Address:</strong> 123 Weather Lane, Forecast City</p>
-      </div>
+        <div class="weather-data">
+            <h2>Weather for [City] ([Country])</h2>
+            <h4>Temperature: __</h4>
+            <h4>Wind Speed: __ M/s</h4>
+            <h4>Humidity: __ %</h4>
+            <h4>Air Quality: __</h4>
+            <div class="days-forecast">
+                <h5>5-Day Forecast</h5>
+                <ul class="weather-cards">
+                    <!-- Forecast cards here -->
+                </ul>
+            </div>
+        </div>
     </div>
-  </section>
 
-  <footer>
-    <div class="container">
-      <p>&copy; 2024 SkyStream. All rights reserved.</p>
-    </div>
-  </footer>
+    <a href="chatbot.html">
+        <div class="chatbot-container">
+            <button class="chatbot-button">
+                <img src="chatbot.gif" alt="chatbot">
+                <span class="tooltip-text">Welcome! How can I assist you?</span>
+            </button>
+        </div>
+    </a>
+
+    <footer class="footer">
+        <p>© 2023 SkyStream | All Rights Reserved</p>
+        <ul>
+            <li><i class="fa-brands fa-youtube"></i> <a href="#">YouTube</a></li>
+            <li><i class="fa-brands fa-twitter"></i> <a href="#">Twitter</a></li>
+            <li><i class="fa-brands fa-linkedin"></i> <a href="#">LinkedIn</a></li>
+        </ul>
+    </footer>
 </body>
 </html>
